@@ -49,11 +49,10 @@ export default function ExampleTable() {
 
   useEffect(() => {
     if(isLoading === false){
-      console.log('qua')
       setRows(data !== null ? [...data.value] : [])
     }
   }, [isLoading, data]);
-  
+
   const aggregationData = (data: RowExampleData[], ...groupBy: (keyof RowExampleData)[]): void => {
     const aggregatedDataMap = new Map<string, RowExampleData>();
 
@@ -68,7 +67,19 @@ export default function ExampleTable() {
         }
     }
     
-    setRows(Array.from(aggregatedDataMap.values()))
+    const result = Array.from(aggregatedDataMap.values());
+
+    // Sort array based on group by order and id value of project and employee object
+    const sorted = result.sort((a, b) => {
+      for (const key of groupBy) {
+          if (a[key].id && b[key].id && a[key].id !== b[key].id) {
+              return a[key].id - b[key].id;
+          }
+      }
+      return 0;
+    });
+
+    setRows(sorted)
   }
   
   const loadingStatement = (): JSX.Element => <div>Loading...</div>
@@ -97,27 +108,21 @@ export default function ExampleTable() {
                
                 <Box sx={{ width: '100%', marginTop: '5rem' }}>
                 <DataGrid rows={rows} columns={columns}
-                initialState={{
-                  pagination: {
-                    paginationModel: { page: 0, pageSize: 5 },
-                  },
-                  columns: {
-                    columnVisibilityModel: {
-                      // Hide column
-                      id: false
-                    }
-                  },
-                }}
+                  initialState={{
+                    pagination: {
+                      paginationModel: { page: 0, pageSize: 5 },
+                    },
+                    columns: {
+                      columnVisibilityModel: {
+                        // Hide column
+                        id: false
+                      }
+                    },
+                  }}
                 pageSizeOptions={[5]}
               />
-                </Box>
-                
-               </Box>
-            
-            )
-            
-            
-            }
+              </Box>  
+            </Box>)}
         </div>
       );
 }
